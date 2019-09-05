@@ -34,8 +34,18 @@ const router = express.Router();
 router.get('/categories/:id/posts', (req, res, next) => {
   
   // Option 1 get user's posts
-  Post.find({category: req.params.id})
-    .then(posts => res.status(200).json({posts: posts}))
+  Post.find({category: req.params.id}).populate('owner')
+    .then(posts => res.status(200).json({posts: posts.map(post => ({
+        id: post._id,
+        content: post.content,
+        createdAt: post.createdAt,
+        likes: post.likes,
+        owner: {
+            username: post.owner.username,
+            photo: post.owner.photo
+        }
+    })
+    )}))
     .catch(next);
   
   // // Option 2 get user's posts
@@ -74,7 +84,7 @@ router.get('/posts/:id', (req, res, next) => {
     .then(post => {
       // pass the `req` object and the Mongoose record to `requireOwnership`
       // it will throw an error if the current user isn't the owner
-      requireOwnership(req, post)
+    //   requireOwnership(req, post)
     
       res.status(200).json({ post: post.toObject() })
     })
@@ -120,7 +130,7 @@ router.patch('/posts/:id', requireToken, removeBlanks, (req, res, next) => {
       return post.update(req.body.post)
     })
     // if that succeeded, return 204 and no JSON
-    .then(() => res.status(204))
+    .then(() => res.sendStatus(204))
     // if an error occurs, pass it to the handler
     .catch(next);
 });

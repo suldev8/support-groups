@@ -33,8 +33,18 @@ const router = express.Router();
 router.get('/posts/:id/comments', (req, res, next) => {
   
   // Option 1 get user's posts
-  Comment.find({post: req.params.id})
-    .then(comments => res.status(200).json({comments}))
+  Comment.find({post: req.params.id}).populate('owner')
+    .then(comments => res.status(200).json({comments: comments.map(comment => ({
+        id: comment._id,
+        content: comment.content,
+        createdAt: comment.createdAt,
+        likes: comment.likes,
+        owner: {
+            username: comment.owner.username,
+            photo: comment.owner.photo
+        }
+    })
+    )}))
     .catch(next);
   
   // // Option 2 get user's posts
@@ -50,7 +60,7 @@ router.get('/posts/:id/comments', (req, res, next) => {
 
 // SHOW
 // GET /posts/5a7db6c74d55bc51bdf39793
-router.get('/comments/:id', requireToken, (req, res, next) => {
+router.get('/comments/:id', (req, res, next) => {
   // req.params.id will be set based on the `:id` in the route
   Comment.findById(req.params.id)
     .then(handle404)
@@ -58,7 +68,7 @@ router.get('/comments/:id', requireToken, (req, res, next) => {
     .then(comment => {
       // pass the `req` object and the Mongoose record to `requireOwnership`
       // it will throw an error if the current user isn't the owner
-      requireOwnership(req, comment)
+      //requireOwnership(req, comment)
     
       res.status(200).json({ comment: comment.toObject() })
     })
@@ -105,7 +115,7 @@ router.patch('/comments/:id', requireToken, removeBlanks, (req, res, next) => {
       return comment.update(req.body.comment)
     })
     // if that succeeded, return 204 and no JSON
-    .then(() => res.status(204))
+    .then(() => res.sendStatus(204))
     // if an error occurs, pass it to the handler
     .catch(next);
 });
