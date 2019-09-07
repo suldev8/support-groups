@@ -120,6 +120,28 @@ router.patch('/comments/:id', requireToken, removeBlanks, (req, res, next) => {
     .catch(next);
 });
 
+
+// Add a like to a comment
+// Patch /comments/5a7db6c74d55bc51bdf39793/like
+router.patch('/comments/:id/like', requireToken, (req, res, next) => {
+  Comment.findById(req.params.id)
+  .then(handle404)
+  .then(comment => {
+    if(comment.likes.indexOf(req.user.id) !== -1) {
+      //It's there, so remove it
+      comment.likes.pull(req.user);
+    } else {
+      //Not there, so add it
+      comment.likes.unshift(req.user);
+    }
+    comment.save().catch(err => console.error(err))
+  }
+    )
+  .then(() => res.sendStatus(204))
+  .catch(next);
+});
+
+
 // DESTROY
 // DELETE /comments/5a7db6c74d55bc51bdf39793
 router.delete('/comments/:id', requireToken, (req, res, next) => {
