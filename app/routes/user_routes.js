@@ -147,6 +147,15 @@ router.patch('/change-password', requireToken, (req, res, next) => {
 });
 
 
+// Change user data
+// PATCH
+router.patch('/user', requireToken, (req,res, next) => {
+  User.findById(req.user.id)
+  .then(user => user.update(req.body.user))
+  .then(() => res.sendStatus(204))
+  .catch(next);
+})
+
 
 router.delete('/sign-out', requireToken, (req, res, next) => {
   // create a new random token for the user, invalidating the current one
