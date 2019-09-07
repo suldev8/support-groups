@@ -66,6 +66,14 @@ router.post('/sign-up', (req, res, next) => {
     .catch(next);
 });
 
+// Get the user data
+// GET /user
+router.get('/user', requireToken, (req, res, next) => {
+  User.findById(req.user.id)
+  .then(user => res.status(200).send({user: user.toObject()}))
+  .catch(next);
+});
+
 // SIGN IN
 // POST /sign-in
 router.post('/sign-in', (req, res, next) => {
