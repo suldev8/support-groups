@@ -28,6 +28,7 @@ const router = express.Router();
 // SIGN UP
 // POST /sign-up
 router.post('/sign-up', (req, res, next) => {
+  let newUser;
   // start a promise chain, so that any errors will pass to `handle`
   Promise.resolve(req.body.credentials)
     // reject any requests where `credentials.password` is not present, or where
@@ -52,7 +53,15 @@ router.post('/sign-up', (req, res, next) => {
     .then(user => User.create(user))
     // send the new user object back with status 201, but `hashedPassword`
     // won't be send because of the `transform` in the User model
-    .then(user => res.status(201).json({ user: user.toObject() }))
+    .then(user => {
+      newUser = user;
+      // res.status(201).json({ user: user.toObject() })
+      const token = crypto.randomBytes(16).toString('hex');
+      user.token = token;
+
+      return user.save();
+    
+    }).then(user => res.status(201).json({ user: user.toObject() }))
     // pass any errors along to the error handler
     .catch(next);
 });
@@ -127,7 +136,9 @@ router.patch('/change-password', requireToken, (req, res, next) => {
     .then(() => res.sendStatus(204))
     // pass any errors along to the error handler
     .catch(next);
-})
+});
+
+
 
 router.delete('/sign-out', requireToken, (req, res, next) => {
   // create a new random token for the user, invalidating the current one
