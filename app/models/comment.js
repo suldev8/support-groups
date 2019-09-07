@@ -26,9 +26,9 @@ const commentSchema = new mongoose.Schema(
   {
     timestamps: true,
     toObject: {
-      transform: (_doc, post) => {
-        post.likes = post.likes.length;
-        return post;
+      transform: (_doc, comment) => {
+        comment.likes = comment.likes.length;
+        return comment;
       }
     }
   }
