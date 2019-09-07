@@ -6,6 +6,7 @@ const passport = require('passport');
 // pull in Mongoose model for posts and category
 const Post = require('../models/post');
 const Category = require('../models/category');
+const User = require('../models/user');
 
 // this is a collection of methods that help us detect situations when we need
 // to throw a custom error
@@ -81,6 +82,7 @@ router.get('/posts/:id', (req, res, next) => {
   Post.findById(req.params.id)
     .then(handle404)
     // if `findById` is succesful, respond with 200 and "post" JSON
+    
     .then(post => {
       // pass the `req` object and the Mongoose record to `requireOwnership`
       // it will throw an error if the current user isn't the owner
@@ -133,6 +135,27 @@ router.patch('/posts/:id', requireToken, removeBlanks, (req, res, next) => {
     .then(() => res.sendStatus(204))
     // if an error occurs, pass it to the handler
     .catch(next);
+});
+
+
+// Add a like to the post
+// Patch /posts/5a7db6c74d55bc51bdf39793/like
+router.patch('/posts/:id/like', requireToken, (req, res, next) => {
+  Post.findById(req.params.id)
+  .then(handle404)
+  .then(post => {
+    if(post.likes.indexOf(req.user.id) !== -1) {
+      //It's there, so remove it
+      post.likes.pull(req.user);
+    } else {
+      //Not there, so add it
+      post.likes.unshift(req.user);
+    }
+    post.save().catch(err => console.error(err))
+  }
+    )
+  .then(() => res.sendStatus(204))
+  .catch(next);
 });
 
 // DESTROY
