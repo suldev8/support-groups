@@ -25,12 +25,6 @@ const postSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    toObject: {
-      transform: (_doc, post) => {
-        post.likes = post.likes.length
-        return post
-      }
-    }
   }
 );
 

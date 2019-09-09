@@ -25,12 +25,6 @@ const commentSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    toObject: {
-      transform: (_doc, comment) => {
-        comment.likes = comment.likes.length;
-        return comment;
-      }
-    }
   }
 );
 
