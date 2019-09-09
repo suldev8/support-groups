@@ -18,6 +18,7 @@ const userSchema = new mongoose.Schema({
 }, {
   timestamps: true,
   toObject: {
+    virtuals: true,
     // remove `hashedPassword` field when we call `.toObject`
     transform: (_doc, user) => {
       delete user.hashedPassword
@@ -25,6 +26,9 @@ const userSchema = new mongoose.Schema({
     }
   }
 })
+
+// userSchema.set('toObject', { virtuals: true });
+// userSchema.set('toJSON', { virtuals: true });
 
 userSchema.virtual('posts', {
   ref: 'Post',
