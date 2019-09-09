@@ -33,6 +33,7 @@ const router = express.Router();
 router.get('/categories/:id/posts', (req, res, next) => {
   // Option 1 get user's posts
   Post.find({ category: req.params.id })
+    .sort('-createdAt')
     .populate('owner')
     .then(posts =>
       res.status(200).json({
