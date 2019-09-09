@@ -33,7 +33,7 @@ const router = express.Router();
 router.get('/posts/:id/comments', (req, res, next) => {
   
   // Option 1 get user's posts
-  Comment.find({post: req.params.id}).populate('owner')
+  Comment.find({post: req.params.id}).populate('owner').sort('-createdAt')
     .then(comments => res.status(200).json({comments: comments.map(comment => ({
         id: comment._id,
         content: comment.content,
