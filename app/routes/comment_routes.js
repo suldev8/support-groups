@@ -87,7 +87,9 @@ router.post('/posts/:id/comments', requireToken, (req, res, next) => {
   Comment.create(comment)
     // respond to successful `create` with status 201 and JSON of new "comment"
     .then(comment => {
-      res.status(201).json({ comment: comment.toObject() })
+      comment.populate('owner')
+          .execPopulate()
+          .then(comment => res.status(201).json({ comment: comment.toObject() }))
     })
     // if an error occurs, pass it off to our error handler
     // the error handler needs the error message and the `res` object so that it
