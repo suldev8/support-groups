@@ -104,7 +104,10 @@ router.post('/categories/:id/posts', requireToken, (req, res, next) => {
       Post.create(req.body.post)
         // respond to successful `create` with status 201 and JSON of new "post"
         .then(post => {
-          res.status(201).json({ post: post.toObject() });
+          post.populate('owner')
+          .execPopulate()
+          .then(post => res.status(201).json({ post: post.toObject() }))
+
         })
         // if an error occurs, pass it off to our error handler
         // the error handler needs the error message and the `res` object so that it
