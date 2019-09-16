@@ -28,6 +28,44 @@ const requireToken = passport.authenticate('bearer', { session: false });
 // instantiate a router (mini app that only handles routes)
 const router = express.Router();
 
+
+//Show all post 
+// /posts/
+router.get('/posts', (req, res, next) => {
+  // Option 1 get user's posts
+  Post.find({})
+    .sort('-updatedAt')
+    .populate('owner')
+    .populate('category')
+    .then(posts =>
+      res.status(200).json({
+        posts: posts.map(post => ({
+          id: post._id,
+          content: post.content,
+          createdAt: post.createdAt,
+          updatedAt: post.updatedAt,
+          likes: post.likes,
+          owner: {
+            username: post.owner.username,
+            photo: post.owner.photo
+          },
+          category: {
+            name: post.category.name,
+            id: post.category._id
+          }
+        }))
+      })
+    )
+    .catch(next);
+
+  // // Option 2 get user's posts
+  // // must import User model and User model must have virtual for posts
+  // User.findById(req.user.id)
+  // .populate('posts')
+  // .then(user => res.status(200).json({ posts: user.posts }))
+  // .catch(next)
+});
+
 // Show all post of category
 // GET categories/:id/posts
 router.get('/categories/:id/posts', (req, res, next) => {
